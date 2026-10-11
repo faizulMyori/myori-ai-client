@@ -19,6 +19,8 @@ abstract class TestCase extends BaseTestCase
         $app['config']->set('myori-ai.token', '1|test-token');
         $app['config']->set('myori-ai.callback_secret', 'test-callback-secret');
         $app['config']->set('cache.default', 'array');
+        // The chat route uses the "web" middleware, which encrypts cookies.
+        $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('k', 32)));
     }
 
     protected function tearDown(): void

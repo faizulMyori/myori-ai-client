@@ -46,6 +46,20 @@ class Gateway
     }
 
     /**
+     * Ask the system's assistant a question for this user. The gateway answers
+     * from the knowledge base and, if this system's token allows live data,
+     * from this system's tools (called back as this same user).
+     *
+     * @param  Authenticatable|array{id: string|int, name?: string|null, roles?: list<string>}  $user
+     * @param  list<array{role: 'user'|'assistant', content: string}>  $history  earlier turns, oldest first
+     * @return array{answer: string, sources: list<array{title: string|null, url: string}>, tools_used: list<string>}
+     */
+    public function chat(Authenticatable|array $user, string $message, array $history = []): array
+    {
+        return $this->post('chat', $user, ['message' => $message, 'history' => $history]);
+    }
+
+    /**
      * @return array{id: string, name: string|null, roles: list<string>}
      */
     public function userContext(Authenticatable|array $user): array
