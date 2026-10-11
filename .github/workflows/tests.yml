@@ -1,0 +1,47 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Every Laravel 11 release has open security advisories, which Composer
+          # blocks by default. Allowed here only so the package stays tested on 11.
+          - laravel: '11.*'
+            testbench: '9.*'
+            php: '8.2'
+            composer-flags: '--no-security-blocking'
+          - laravel: '12.*'
+            testbench: '10.*'
+            php: '8.2'
+          - laravel: '13.*'
+            testbench: '11.*'
+            php: '8.3'
+          - laravel: '13.*'
+            testbench: '11.*'
+            php: '8.4'
+
+    name: Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --dev --no-interaction --no-update
+          composer update --prefer-dist --no-interaction ${{ matrix.composer-flags }}
+
+      - name: Run tests
+        run: vendor/bin/phpunit
